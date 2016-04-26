@@ -7,6 +7,10 @@
 //
 
 import UIKit
+
+protocol FaceViewDateSource: class {
+    func smilinessForFaceView(sender: SmileView) -> Double?
+}
 @IBDesignable
 class SmileView: UIView {
     var faceCenter:CGPoint {
@@ -29,11 +33,18 @@ class SmileView: UIView {
         
         bezierPathForEye(.Left).stroke()   //stroke the left eye
         bezierPathForEye(.Right).stroke()  //stroke the right eye
-        let smiliness = 0.75              // give the number for whether happy or unhappy
+        let smiliness = dataSource?.smilinessForFaceView(self) ?? 0.0          // give the number for whether happy or unhappy
         let smilePath = bezierPathForSmile(smiliness)  //set the instance of smilness
         smilePath.stroke()           //stroke the line of mouth
         
     }
+    func scale(guesture: UIPinchGestureRecognizer) {
+        if guesture.state == .Changed {
+            scale *= guesture.scale
+            guesture.scale = 1
+        }
+    }
+    weak var dataSource : FaceViewDateSource?
     
     private struct Scaling {                                      // define a struct for what the face look like
         static let FaceRadiusToEyeRadiusRatio:CGFloat = 10        // a constant for eye radius
